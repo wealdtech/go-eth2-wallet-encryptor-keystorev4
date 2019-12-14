@@ -32,11 +32,6 @@ func TestDecrypt(t *testing.T) {
 		err        error
 	}{
 		{
-			name:  "Empty",
-			input: "",
-			err:   errors.New("no checksum"),
-		},
-		{
 			name:       "NoCipher",
 			input:      `{"checksum":{"function":"SHA256","message":"cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":8,"r":1,"salt":"ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: []byte("testpassword"),

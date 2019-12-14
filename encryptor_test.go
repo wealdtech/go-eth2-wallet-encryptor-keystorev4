@@ -15,7 +15,6 @@ package keystorev4_test
 
 import (
 	"encoding/json"
-	"errors"
 	"testing"
 
 	assert "github.com/stretchr/testify/assert"
@@ -31,11 +30,6 @@ func TestRoundTrip(t *testing.T) {
 		secret     []byte
 		err        error
 	}{
-		{
-			name:  "Empty",
-			input: "",
-			err:   errors.New("no checksum"),
-		},
 		{
 			name:       "TT",
 			input:      `{"checksum":{"function":"sha256","message":"149aafa27b041f3523c53d7acba1905fa6b1c90f9fef137568101f44b531a3cb","params":{}},"cipher":{"function":"aes-128-ctr","message":"54ecc8863c0550351eee5720f3be6a5d4a016025aa91cd6436cfec938d6a8d30","params":{"iv":"264daa3f303d7259501c93d997d84fe6"}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"}}}`,
