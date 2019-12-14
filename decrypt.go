@@ -84,14 +84,18 @@ func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase []byte) ([]b
 		return nil, errors.New("invalid cipher message")
 	}
 	h := sha256.New()
-	h.Write(decryptionKey[16:32])
-	h.Write(cipherMsg)
+	if _, err := h.Write(decryptionKey[16:32]); err != nil {
+		return nil, err
+	}
+	if _, err := h.Write(cipherMsg); err != nil {
+		return nil, err
+	}
 	checksum := h.Sum(nil)
 	checksumMsg, err := hex.DecodeString(ks.Checksum.Message)
 	if err != nil {
 		return nil, errors.New("invalid checksum message")
 	}
-	if bytes.Compare(checksum, checksumMsg) != 0 {
+	if !bytes.Equal(checksum, checksumMsg) {
 		return nil, errors.New("invalid checksum")
 	}
 

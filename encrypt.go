@@ -47,7 +47,9 @@ func (e *Encryptor) Encrypt(secret []byte, passphrase []byte) (map[string]interf
 
 	// Random salt
 	salt := make([]byte, 32)
-	rand.Read(salt)
+	if _, err := rand.Read(salt); err != nil {
+		return nil, err
+	}
 
 	// Create the decryption key
 	var decryptionKey []byte
@@ -72,14 +74,20 @@ func (e *Encryptor) Encrypt(secret []byte, passphrase []byte) (map[string]interf
 	}
 	// Random IV
 	iv := make([]byte, 16)
-	rand.Read(iv)
+	if _, err := rand.Read(iv); err != nil {
+		return nil, err
+	}
 	stream := cipher.NewCTR(aesCipher, iv)
 	stream.XORKeyStream(cipherMsg, secret)
 
 	// Generate the checksum
 	h := sha256.New()
-	h.Write(decryptionKey[16:32])
-	h.Write(cipherMsg)
+	if _, err := h.Write(decryptionKey[16:32]); err != nil {
+		return nil, err
+	}
+	if _, err := h.Write(cipherMsg); err != nil {
+		return nil, err
+	}
 	checksumMsg := h.Sum(nil)
 
 	var kdf *ksKDF

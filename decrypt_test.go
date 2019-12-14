@@ -120,7 +120,8 @@ func TestDecrypt(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			encryptor := keystorev4.New()
 			input := make(map[string]interface{})
-			json.Unmarshal([]byte(test.input), &input)
+			err := json.Unmarshal([]byte(test.input), &input)
+			require.Nil(t, err)
 			output, err := encryptor.Decrypt(input, test.passphrase)
 			if test.err != nil {
 				require.NotNil(t, err)
