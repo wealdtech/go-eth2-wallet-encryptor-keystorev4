@@ -27,7 +27,7 @@ import (
 )
 
 // Decrypt decrypts the data provided, returning the secret.
-func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase []byte) ([]byte, error) {
+func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase string) ([]byte, error) {
 	// Sanity checks
 	b, err := json.Marshal(data)
 	if err != nil {
@@ -47,10 +47,11 @@ func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase []byte) ([]b
 		return nil, errors.New("no cipher")
 	}
 
+	normedPassphrase := []byte(normPassphrase(passphrase))
 	// Decryption key
 	var decryptionKey []byte
 	if ks.KDF == nil {
-		decryptionKey = passphrase
+		decryptionKey = normedPassphrase
 	} else {
 		kdfParams := ks.KDF.Params
 		salt, err := hex.DecodeString(kdfParams.Salt)
@@ -59,11 +60,11 @@ func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase []byte) ([]b
 		}
 		switch ks.KDF.Function {
 		case "scrypt":
-			decryptionKey, err = scrypt.Key(passphrase, salt, kdfParams.N, kdfParams.R, kdfParams.P, kdfParams.DKLen)
+			decryptionKey, err = scrypt.Key(normedPassphrase, salt, kdfParams.N, kdfParams.R, kdfParams.P, kdfParams.DKLen)
 		case "pbkdf2":
 			switch kdfParams.PRF {
 			case "hmac-sha256":
-				decryptionKey = pbkdf2.Key(passphrase, salt, kdfParams.C, kdfParams.DKLen, sha256.New)
+				decryptionKey = pbkdf2.Key(normedPassphrase, salt, kdfParams.C, kdfParams.DKLen, sha256.New)
 			default:
 				return nil, fmt.Errorf("unsupported PBKDF2 PRF %q", kdfParams.PRF)
 			}
@@ -100,7 +101,7 @@ func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase []byte) ([]b
 	}
 
 	// Decrypt
-	res := make([]byte, len(decryptionKey))
+	res := make([]byte, len(cipherMsg))
 	switch ks.Cipher.Function {
 	case "xor":
 		for i := range decryptionKey {

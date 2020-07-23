@@ -39,8 +39,8 @@ const (
 	pbkdf2PRF    = "hmac-sha256"
 )
 
-// Encrypt encrypts the data.
-func (e *Encryptor) Encrypt(secret []byte, passphrase []byte) (map[string]interface{}, error) {
+// Encrypt encrypts data.
+func (e *Encryptor) Encrypt(secret []byte, passphrase string) (map[string]interface{}, error) {
 	if secret == nil {
 		return nil, errors.New("no secret")
 	}
@@ -51,14 +51,15 @@ func (e *Encryptor) Encrypt(secret []byte, passphrase []byte) (map[string]interf
 		return nil, err
 	}
 
+	normedPassphrase := []byte(normPassphrase(passphrase))
 	// Create the decryption key
 	var decryptionKey []byte
 	var err error
 	switch e.cipher {
 	case "scrypt":
-		decryptionKey, err = scrypt.Key([]byte(passphrase), salt, scryptN, scryptr, scryptp, scryptKeyLen)
+		decryptionKey, err = scrypt.Key(normedPassphrase, salt, scryptN, scryptr, scryptp, scryptKeyLen)
 	case "pbkdf2":
-		decryptionKey = pbkdf2.Key([]byte(passphrase), salt, pbkdf2c, pbkdf2KeyLen, sha256.New)
+		decryptionKey = pbkdf2.Key(normedPassphrase, salt, pbkdf2c, pbkdf2KeyLen, sha256.New)
 	default:
 		return nil, fmt.Errorf("unknown cipher %q", e.cipher)
 	}
