@@ -28,7 +28,10 @@ import (
 
 // Decrypt decrypts the data provided, returning the secret.
 func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase string) ([]byte, error) {
-	// Sanity checks
+	if data == nil {
+		return nil, errors.New("no data supplied")
+	}
+	// Marshal the map and unmarshal it back in to a keystore format so we can work with it.
 	b, err := json.Marshal(data)
 	if err != nil {
 		return nil, errors.New("failed to parse keystore")

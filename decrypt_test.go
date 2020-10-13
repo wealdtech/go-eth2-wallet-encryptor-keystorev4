@@ -15,7 +15,6 @@ package keystorev4_test
 
 import (
 	"encoding/json"
-	"errors"
 	"testing"
 
 	assert "github.com/stretchr/testify/assert"
@@ -29,61 +28,61 @@ func TestDecrypt(t *testing.T) {
 		input      string
 		passphrase string
 		output     []byte
-		err        error
+		err        string
 	}{
 		{
 			name:       "NoCipher",
 			input:      `{"checksum":{"function":"SHA256","message":"cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":8,"r":1,"salt":"ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("no cipher"),
+			err:        "no cipher",
 		},
 		{
 			name:       "ShortPassphrase",
 			input:      `{"checksum":{"function":"SHA256","message":"cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"cipher":{"function":"xor","message":"e18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a","params":{}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("decryption key must be at least 32 bytes"),
+			err:        "decryption key must be at least 32 bytes",
 		},
 		{
 			name:       "BadSalt",
 			input:      `{"checksum":{"function":"SHA256","message":"cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"cipher":{"function":"xor","message":"e18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":8,"r":1,"salt":"hb0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("invalid KDF salt"),
+			err:        "invalid KDF salt",
 		},
 		{
 			name:       "BadPRF",
 			input:      `{"kdf":{"function":"pbkdf2","params":{"dklen":32,"c":262144,"prf":"hmac-sha128","salt":"d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"},"message":""},"checksum":{"function":"sha256","params":{},"message":"18b148af8e52920318084560fd766f9d09587b4915258dec0676cba5b0da09d8"},"cipher":{"function":"aes-128-ctr","params":{"iv":"264daa3f303d7259501c93d997d84fe6"},"message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"}}`,
 			passphrase: "testpassword",
-			err:        errors.New(`unsupported PBKDF2 PRF "hmac-sha128"`),
+			err:        `unsupported PBKDF2 PRF "hmac-sha128"`,
 		},
 		{
 			name:       "BadKDF",
 			input:      `{"kdf":{"function":"magic","params":{"dklen":32,"c":262144,"prf":"hmac-sha128","salt":"d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"},"message":""},"checksum":{"function":"sha256","params":{},"message":"18b148af8e52920318084560fd766f9d09587b4915258dec0676cba5b0da09d8"},"cipher":{"function":"aes-128-ctr","params":{"iv":"264daa3f303d7259501c93d997d84fe6"},"message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"}}`,
 			passphrase: "testpassword",
-			err:        errors.New(`unsupported KDF "magic"`),
+			err:        `unsupported KDF "magic"`,
 		},
 		{
 			name:       "InvalidScryptParams",
 			input:      `{"checksum":{"function":"SHA256","message":"cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"cipher":{"function":"xor","message":"e18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":0,"n":3,"p":-4,"r":1,"salt":"ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("invalid KDF parameters"),
+			err:        "invalid KDF parameters",
 		},
 		{
 			name:       "BadCipherMessage",
 			input:      `{"checksum":{"function":"SHA256","message":"cb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"cipher":{"function":"xor","message":"h18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":8,"r":1,"salt":"ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("invalid cipher message"),
+			err:        "invalid cipher message",
 		},
 		{
 			name:       "BadChecksumMessage",
 			input:      `{"checksum":{"function":"SHA256","message":"hb27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"cipher":{"function":"xor","message":"e18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":8,"r":1,"salt":"ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("invalid checksum message"),
+			err:        "invalid checksum message",
 		},
 		{
 			name:       "InvalidChecksum",
 			input:      `{"checksum":{"function":"SHA256","message":"db27fe860c96f269f7838525ba8dce0886e0b7753caccc14162195bcdacbf49e","params":{}},"cipher":{"function":"xor","message":"e18afad793ec8dc3263169c07add77515d9f301464a05508d7ecb42ced24ed3a","params":{}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":262144,"p":8,"r":1,"salt":"ab0c7876052600dd703518d6fc3fe8984592145b591fc8fb5c6d43190334ba19"}}}`,
 			passphrase: "testpassword",
-			err:        errors.New("invalid checksum"),
+			err:        "invalid checksum",
 		},
 		{
 			name:       "BadIV",
@@ -95,13 +94,13 @@ func TestDecrypt(t *testing.T) {
 			name:       "BadIV",
 			input:      `{"kdf":{"function":"pbkdf2","params":{"dklen":32,"c":262144,"prf":"hmac-sha256","salt":"d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"},"message":""},"checksum":{"function":"sha256","params":{},"message":"18b148af8e52920318084560fd766f9d09587b4915258dec0676cba5b0da09d8"},"cipher":{"function":"aes-128-ctr","params":{"iv":"h64daa3f303d7259501c93d997d84fe6"},"message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"}}`,
 			passphrase: "testpassword",
-			err:        errors.New("invalid IV"),
+			err:        "invalid IV",
 		},
 		{
 			name:       "BadCipher",
 			input:      `{"kdf":{"function":"pbkdf2","params":{"dklen":32,"c":262144,"prf":"hmac-sha256","salt":"d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"},"message":""},"checksum":{"function":"sha256","params":{},"message":"18b148af8e52920318084560fd766f9d09587b4915258dec0676cba5b0da09d8"},"cipher":{"function":"aes-64-ctr","params":{"iv":"264daa3f303d7259501c93d997d84fe6"},"message": "a9249e0ca7315836356e4c7440361ff22b9fe71e2e2ed34fc1eb03976924ed48"}}`,
 			passphrase: "testpassword",
-			err:        errors.New(`unsupported cipher "aes-64-ctr"`),
+			err:        `unsupported cipher "aes-64-ctr"`,
 		},
 		{
 			name:       "Good",
@@ -130,13 +129,38 @@ func TestDecrypt(t *testing.T) {
 			err := json.Unmarshal([]byte(test.input), &input)
 			require.Nil(t, err)
 			output, err := encryptor.Decrypt(input, test.passphrase)
-			if test.err != nil {
-				require.NotNil(t, err)
-				assert.Equal(t, test.err.Error(), err.Error())
+			if test.err != "" {
+				require.EqualError(t, err, test.err)
 			} else {
 				require.Nil(t, err)
 				assert.Equal(t, test.output, output)
 			}
+		})
+	}
+}
+
+func TestDecryptBadInput(t *testing.T) {
+	tests := []struct {
+		name  string
+		input map[string]interface{}
+		err   string
+	}{
+		{
+			name: "Nil",
+			err:  "no data supplied",
+		},
+		{
+			name:  "Empty",
+			input: map[string]interface{}{},
+			err:   "no checksum",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			encryptor := keystorev4.New()
+			_, err := encryptor.Decrypt(test.input, "irrelevant")
+			require.EqualError(t, err, test.err)
 		})
 	}
 }

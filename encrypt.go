@@ -28,14 +28,14 @@ import (
 
 const (
 	// Scrypt parameters
-	scryptN      = 2 ^ 18
-	scryptr      = 1
-	scryptp      = 8
+	scryptN      = 262144
+	scryptr      = 8
+	scryptp      = 1
 	scryptKeyLen = 32
 
 	// PBKDF2 parameters
 	pbkdf2KeyLen = 32
-	pbkdf2c      = 2 ^ 18
+	pbkdf2c      = 262144
 	pbkdf2PRF    = "hmac-sha256"
 )
 
