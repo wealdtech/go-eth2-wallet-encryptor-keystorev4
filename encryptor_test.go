@@ -20,7 +20,13 @@ import (
 	assert "github.com/stretchr/testify/assert"
 	require "github.com/stretchr/testify/require"
 	keystorev4 "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4"
+	e2wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
+
+func TestInterfaces(t *testing.T) {
+	encryptor := keystorev4.New()
+	require.Implements(t, (*e2wtypes.Encryptor)(nil), encryptor)
+}
 
 func TestRoundTrip(t *testing.T) {
 	tests := []struct {
