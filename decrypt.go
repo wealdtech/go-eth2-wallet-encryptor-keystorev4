@@ -106,10 +106,6 @@ func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase string) ([]b
 	// Decrypt
 	res := make([]byte, len(cipherMsg))
 	switch ks.Cipher.Function {
-	case "xor":
-		for i := range decryptionKey {
-			res[i] = decryptionKey[i] ^ cipherMsg[i]
-		}
 	case "aes-128-ctr":
 		aesCipher, err := aes.NewCipher(decryptionKey[:16])
 		if err != nil {
