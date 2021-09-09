@@ -1,4 +1,4 @@
-// Copyright © 2020 Weald Technology Trading
+// Copyright © 2020, 2021 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -13,6 +13,7 @@
 package keystorev4
 
 import (
+	"strings"
 	"unicode/utf8"
 
 	"golang.org/x/text/unicode/norm"
@@ -89,8 +90,23 @@ var stripChars = map[byte]bool{
 // normPassphrase normalises a passphrase, as per the rules at
 // https://eips.ethereum.org/EIPS/eip-2335#password-requirements
 func normPassphrase(input string) string {
-	var output []byte
+	res := strings.Builder{}
+	str := norm.NFKD.String(input)
+	for _, rune := range str {
+		if len(string(rune)) == 1 && stripChars[string(rune)[0]] {
+			continue
+		}
+		res.WriteRune(rune)
+	}
+	return res.String()
 
+}
+
+// altNormPassphrase is the old method for normalising a passphrase.  It is
+// known to give different (non-standard) results under certain
+// circumstances (e.g. when the passphrase contains 'ü').
+func altNormPassphrase(input string) string {
+	var output []byte
 	iter := &norm.Iter{}
 	iter.InitString(norm.NFKD, input)
 	for !iter.Done() {

@@ -1,4 +1,4 @@
-// Copyright © 2019 Weald Technology Trading
+// Copyright © 2019-2021 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -107,6 +107,18 @@ func TestDecrypt(t *testing.T) {
 			input:      `{"checksum":{"function":"sha256","message":"9ca5a58a8a8d7a62c3bd890c51ab3169bcfd7f154947458ac4f2950b059b6b38","params":{}},"cipher":{"function":"aes-128-ctr","message":"12edd28c7290896ea24ecda9066f34a70dbab972d8d975f5727f938ba5a8641f","params":{"iv":"b29d49568661b61e92352e3bb36038d9"}},"kdf":{"function":"pbkdf2","message":"","params":{"c":262144,"dklen":32,"prf":"hmac-sha256","salt":"d90262ceea3018400076177f5bc55b6e185d5e63361bebdda4a2f7a2066caadc"}}}`,
 			passphrase: "testpassword",
 			output:     []byte{0x11, 0xdd, 0xc, 0x87, 0xfe, 0xf7, 0x48, 0xdc, 0x7, 0xee, 0xb7, 0xe, 0xd, 0xe5, 0xdc, 0x94, 0x4c, 0xd4, 0xd5, 0xbe, 0x86, 0x4e, 0xc, 0x40, 0x35, 0x26, 0xf2, 0xfd, 0x34, 0x61, 0xa8, 0x3e},
+		},
+		{
+			name:       "GoodNorm",
+			input:      `{"checksum":{"function":"sha256","message":"3e1d45e3e47bcb2406ab25b6119225c85e7b2276b0834c7203a125bd7b6ca34f","params":{}},"cipher":{"function":"aes-128-ctr","message":"0ed64a392274f7fcc76f8cf4d22f86057c42e6c6b726cc19dc64e80ebab5d1dd","params":{"iv":"ff6cc499ff4bbfca0125700b29cfa4dc"}},"kdf":{"function":"pbkdf2","message":"","params":{"c":262144,"dklen":32,"prf":"hmac-sha256","salt":"70f3ebd9776781f46c2ead400a3a9ed7ad2880871fe9422a734303d1492f2477"}}}`,
+			passphrase: "testpasswordü",
+			output:     []byte{0x3f, 0xa3, 0xc2, 0xa1, 0xc9, 0xf5, 0xe6, 0xb3, 0x5b, 0x22, 0x3b, 0x8e, 0x84, 0xcc, 0xb3, 0x94, 0x83, 0x77, 0x20, 0xa7, 0x12, 0xbb, 0xd1, 0xdc, 0xdd, 0xcf, 0xeb, 0x78, 0xa2, 0x98, 0xd0, 0x63},
+		},
+		{
+			name:       "GoodAltNorm",
+			input:      `{"checksum":{"function":"sha256","message":"5bbf87c004da9b7f39f9374725c1ae89e15a52306a4d0a73654769ecb39341ed","params":{}},"cipher":{"function":"aes-128-ctr","message":"e3f3ef7027c3ddf579c7a88001ea2fcb17f850dcc8198c3f3ba0610a70a293a0","params":{"iv":"f0855894642fecdcce1696a50a2c0e4e"}},"kdf":{"function":"pbkdf2","message":"","params":{"c":262144,"dklen":32,"prf":"hmac-sha256","salt":"454932cffe9fbc0767c46280663550df4bf64205bfe9f3a359012f21dd9c30bb"}}}`,
+			passphrase: "testpasswordü",
+			output:     []byte{0x3f, 0xa3, 0xc2, 0xa1, 0xc9, 0xf5, 0xe6, 0xb3, 0x5b, 0x22, 0x3b, 0x8e, 0x84, 0xcc, 0xb3, 0x94, 0x83, 0x77, 0x20, 0xa7, 0x12, 0xbb, 0xd1, 0xdc, 0xdd, 0xcf, 0xeb, 0x78, 0xa2, 0x98, 0xd0, 0x63},
 		},
 		{
 			name: "SCrypt",

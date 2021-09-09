@@ -1,4 +1,4 @@
-// Copyright © 2019 Weald Technology Trading
+// Copyright © 2019-2021 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -51,6 +51,24 @@ func (e *Encryptor) Decrypt(data map[string]interface{}, passphrase string) ([]b
 	}
 
 	normedPassphrase := []byte(normPassphrase(passphrase))
+	res, err := decryptNorm(ks, normedPassphrase)
+	if err != nil {
+		// There is an alternate method to generate a normalised
+		// passphrase that can produce different results.  To allow
+		// decryption of data that may have been encrypted with the
+		// alternate method we attempt to decrypt using that method
+		// given the failure of the standard normalised method.
+		normedPassphrase = []byte(altNormPassphrase(passphrase))
+		res, err = decryptNorm(ks, normedPassphrase)
+		if err != nil {
+			// No luck either way.
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func decryptNorm(ks *keystoreV4, normedPassphrase []byte) ([]byte, error) {
 	// Decryption key
 	var decryptionKey []byte
 	if ks.KDF == nil {
