@@ -15,6 +15,7 @@ package keystorev4
 // Encryptor is an encryptor that follows the Ethereum keystore V4 specification.
 type Encryptor struct {
 	cipher string
+	cost   int
 }
 
 type ksKDFParams struct {
@@ -62,6 +63,7 @@ const (
 // options are the options for the keystore encryptor.
 type options struct {
 	cipher string
+	cost   int
 }
 
 // Option gives options to New
@@ -82,12 +84,23 @@ func WithCipher(cipher string) Option {
 	})
 }
 
+// WithCost sets the cipher key cost for the encryptor overriding the default value of 262144 (2^18).
+// Higher values increases the cost of an exhaustive search but makes encoding and decoding
+// proportionally slower. It must be a power of 2 greater than 1.
+func WithCost(cost int) Option {
+	return optionFunc(func(o *options) {
+		o.cost = cost
+	})
+}
+
 // New creates a new keystore V4 encryptor.
 // This takes the following options:
 // - cipher: the cipher to use when encrypting the secret, can be either "pbkdf2" (default) or "scrypt"
+// - cost: the cipher key cost to use, must be a power of 2 greater than 1, default is 2^18.
 func New(opts ...Option) *Encryptor {
 	options := options{
 		cipher: "pbkdf2",
+		cost:   1 << 18,
 	}
 	for _, o := range opts {
 		o.apply(&options)
@@ -95,6 +108,7 @@ func New(opts ...Option) *Encryptor {
 
 	return &Encryptor{
 		cipher: options.cipher,
+		cost:   options.cost,
 	}
 }
 
