@@ -61,13 +61,13 @@ func TestRoundTrip(t *testing.T) {
 			input:      `{"checksum":{"function":"sha256","message":"e4c3c7171f8ff54478868dbf1648dac50c6f38dafe5d9c8dd9f312b812f7fc44","params":{}},"cipher":{"function":"aes-128-ctr","message":"a71e9211932429462d3f6b032a800452651d0cf4517cc0f28c65be57df78f675","params":{"iv":"f68ce93072d0b6c6ca8afbc9b002cd89"}},"kdf":{"function":"scrypt","message":"","params":{"dklen":32,"n":1024,"p":1,"r":8,"salt":"316bd15fbca6d44e543f91762b66a29d2e3f590a9f7a42b9eff1dec48df0075f"}}}`,
 			passphrase: "𝔱𝔢𝔰𝔱𝔭𝔞𝔰𝔰𝔴𝔬𝔯𝔡🔑",
 			secret:     []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0xd6, 0x68, 0x9c, 0x08, 0x5a, 0xe1, 0x65, 0x83, 0x1e, 0x93, 0x4f, 0xf7, 0x63, 0xae, 0x46, 0xa2, 0xa6, 0xc1, 0x72, 0xb3, 0xf1, 0xb6, 0x0a, 0x8c, 0xe2, 0x6f},
-			options:    []keystorev4.Option{keystorev4.WithCipher("scrypt"), keystorev4.WithCost(1 << 10)},
+			options:    []keystorev4.Option{keystorev4.WithCipher("scrypt"), keystorev4.WithCost(t, 10)},
 		}, {
 			name:       "LowCostPBKDF2",
 			input:      `{"checksum":{"function":"sha256","message":"57dbef6061fe5832064da342e92cac95917ff6d928d278919e3ddb7ae89c05c7","params":{}},"cipher":{"function":"aes-128-ctr","message":"cfe1132d3f0fe4f59d38f5eef01b80be32517448fa65dd0476171324cc3ab5fc","params":{"iv":"5975ccd92bc36290f082f134ec4c52bd"}},"kdf":{"function":"pbkdf2","message":"","params":{"c":1024,"dklen":32,"prf":"hmac-sha256","salt":"700ca70794d861f8f35d733e83c67431c893aa8e83b0dc43b6abd62edf9df0d1"}}}`,
 			passphrase: "𝔱𝔢𝔰𝔱𝔭𝔞𝔰𝔰𝔴𝔬𝔯𝔡🔑",
 			secret:     []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0xd6, 0x68, 0x9c, 0x08, 0x5a, 0xe1, 0x65, 0x83, 0x1e, 0x93, 0x4f, 0xf7, 0x63, 0xae, 0x46, 0xa2, 0xa6, 0xc1, 0x72, 0xb3, 0xf1, 0xb6, 0x0a, 0x8c, 0xe2, 0x6f},
-			options:    []keystorev4.Option{keystorev4.WithCost(1 << 10)},
+			options:    []keystorev4.Option{keystorev4.WithCost(t, 10)},
 		},
 	}
 
