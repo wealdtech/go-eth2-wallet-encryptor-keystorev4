@@ -89,8 +89,11 @@ func WithCipher(cipher string) Option {
 // WithCost sets the cipher key cost for the encryptor to 2^power overriding
 // the default value of 18 (ie. 2^18=262144). Higher values increases the
 // cost of an exhaustive search but makes encoding and decoding proportionally slower.
-// This should only be in testing as it affects security.
-func WithCost(_ *testing.T, costPower uint) Option {
+// This should only be in testing as it affects security. It panics if t is nil.
+func WithCost(t *testing.T, costPower uint) Option {
+	if t == nil {
+		panic("nil testing parameter")
+	}
 	return optionFunc(func(o *options) {
 		o.costPower = costPower
 	})

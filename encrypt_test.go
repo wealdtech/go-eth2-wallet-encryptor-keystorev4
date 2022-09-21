@@ -106,3 +106,9 @@ func TestEncrypt(t *testing.T) {
 		})
 	}
 }
+
+func TestWithCostPanic(t *testing.T) {
+	require.Panics(t, func() {
+		keystorev4.WithCost(nil, 1)
+	})
+}
