@@ -28,14 +28,12 @@ import (
 
 const (
 	// Scrypt parameters
-	scryptN      = 262144
 	scryptr      = 8
 	scryptp      = 1
 	scryptKeyLen = 32
 
 	// PBKDF2 parameters
 	pbkdf2KeyLen = 32
-	pbkdf2c      = 262144
 	pbkdf2PRF    = "hmac-sha256"
 )
 
@@ -57,9 +55,9 @@ func (e *Encryptor) Encrypt(secret []byte, passphrase string) (map[string]interf
 	var err error
 	switch e.cipher {
 	case "scrypt":
-		decryptionKey, err = scrypt.Key(normedPassphrase, salt, scryptN, scryptr, scryptp, scryptKeyLen)
+		decryptionKey, err = scrypt.Key(normedPassphrase, salt, e.cost, scryptr, scryptp, scryptKeyLen)
 	case "pbkdf2":
-		decryptionKey = pbkdf2.Key(normedPassphrase, salt, pbkdf2c, pbkdf2KeyLen, sha256.New)
+		decryptionKey = pbkdf2.Key(normedPassphrase, salt, e.cost, pbkdf2KeyLen, sha256.New)
 	default:
 		return nil, fmt.Errorf("unknown cipher %q", e.cipher)
 	}
@@ -98,7 +96,7 @@ func (e *Encryptor) Encrypt(secret []byte, passphrase string) (map[string]interf
 			Function: "scrypt",
 			Params: &ksKDFParams{
 				DKLen: scryptKeyLen,
-				N:     scryptN,
+				N:     e.cost,
 				P:     scryptp,
 				R:     scryptr,
 				Salt:  hex.EncodeToString(salt),
@@ -110,7 +108,7 @@ func (e *Encryptor) Encrypt(secret []byte, passphrase string) (map[string]interf
 			Function: "pbkdf2",
 			Params: &ksKDFParams{
 				DKLen: pbkdf2KeyLen,
-				C:     pbkdf2c,
+				C:     e.cost,
 				PRF:   pbkdf2PRF,
 				Salt:  hex.EncodeToString(salt),
 			},

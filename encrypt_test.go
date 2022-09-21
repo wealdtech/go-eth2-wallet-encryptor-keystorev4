@@ -26,6 +26,7 @@ func TestEncrypt(t *testing.T) {
 	tests := []struct {
 		name       string
 		cipher     string
+		costPower  uint
 		secret     []byte
 		passphrase string
 		err        error
@@ -57,8 +58,9 @@ func TestEncrypt(t *testing.T) {
 			err:        errors.New(`unknown cipher "unknown"`),
 		},
 		{
-			name:   "Good",
-			cipher: "scrypt",
+			name:      "Good",
+			cipher:    "pbkdf2",
+			costPower: 10,
 			secret: []byte{
 				0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 				0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
@@ -67,11 +69,33 @@ func TestEncrypt(t *testing.T) {
 			},
 			passphrase: "wallet passphrase",
 		},
+		{
+			name:       "LowCostScrypt",
+			cipher:     "scrypt",
+			costPower:  10,
+			secret:     []byte(""),
+			passphrase: "",
+		},
+		{
+			name:       "LowCostPBKDF2",
+			cipher:     "pbkdf2",
+			costPower:  10,
+			secret:     []byte(""),
+			passphrase: "",
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			encryptor := keystorev4.New(keystorev4.WithCipher(test.cipher))
+			var options []keystorev4.Option
+			if test.cipher != "" {
+				options = append(options, keystorev4.WithCipher(test.cipher))
+			}
+			if test.costPower != 0 {
+				options = append(options, keystorev4.WithCost(t, test.costPower))
+			}
+
+			encryptor := keystorev4.New(options...)
 			_, err := encryptor.Encrypt(test.secret, test.passphrase)
 			if test.err != nil {
 				require.NotNil(t, err)
@@ -81,4 +105,10 @@ func TestEncrypt(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestWithCostPanic(t *testing.T) {
+	require.Panics(t, func() {
+		keystorev4.WithCost(nil, 1)
+	})
 }
