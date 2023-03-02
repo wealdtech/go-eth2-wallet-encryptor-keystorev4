@@ -176,3 +176,13 @@ func TestDecryptBadInput(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkDecrypt(b *testing.B) {
+	encryptor := keystorev4.New()
+	input := make(map[string]interface{})
+	require.NoError(b, json.Unmarshal([]byte(`{"checksum":{"function":"sha256","message":"9ca5a58a8a8d7a62c3bd890c51ab3169bcfd7f154947458ac4f2950b059b6b38","params":{}},"cipher":{"function":"aes-128-ctr","message":"12edd28c7290896ea24ecda9066f34a70dbab972d8d975f5727f938ba5a8641f","params":{"iv":"b29d49568661b61e92352e3bb36038d9"}},"kdf":{"function":"pbkdf2","message":"","params":{"c":262144,"dklen":32,"prf":"hmac-sha256","salt":"d90262ceea3018400076177f5bc55b6e185d5e63361bebdda4a2f7a2066caadc"}}}`), &input))
+	for i := 0; i < b.N; i++ {
+		_, err := encryptor.Decrypt(input, "testpassword")
+		require.NoError(b, err)
+	}
+}
