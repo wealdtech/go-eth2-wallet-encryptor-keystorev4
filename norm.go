@@ -92,14 +92,15 @@ var stripChars = map[byte]bool{
 func normPassphrase(input string) string {
 	res := strings.Builder{}
 	str := norm.NFKD.String(input)
+
 	for _, rune := range str {
 		if len(string(rune)) == 1 && stripChars[string(rune)[0]] {
 			continue
 		}
 		res.WriteRune(rune)
 	}
-	return res.String()
 
+	return res.String()
 }
 
 // altNormPassphrase is the old method for normalising a passphrase.  It is
@@ -109,9 +110,9 @@ func altNormPassphrase(input string) string {
 	var output []byte
 	iter := &norm.Iter{}
 	iter.InitString(norm.NFKD, input)
+
 	for !iter.Done() {
-		rune := iter.Next()
-		r, _ := utf8.DecodeRune(rune)
+		r, _ := utf8.DecodeRune(iter.Next())
 		buf := make([]byte, utf8.RuneLen(r))
 		utf8.EncodeRune(buf, r)
 		if len(buf) == 1 && stripChars[buf[0]] {

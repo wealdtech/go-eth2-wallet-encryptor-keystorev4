@@ -62,7 +62,8 @@ func TestRoundTrip(t *testing.T) {
 			passphrase: "𝔱𝔢𝔰𝔱𝔭𝔞𝔰𝔰𝔴𝔬𝔯𝔡🔑",
 			secret:     []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0xd6, 0x68, 0x9c, 0x08, 0x5a, 0xe1, 0x65, 0x83, 0x1e, 0x93, 0x4f, 0xf7, 0x63, 0xae, 0x46, 0xa2, 0xa6, 0xc1, 0x72, 0xb3, 0xf1, 0xb6, 0x0a, 0x8c, 0xe2, 0x6f},
 			options:    []keystorev4.Option{keystorev4.WithCipher("scrypt"), keystorev4.WithCost(t, 10)},
-		}, {
+		},
+		{
 			name:       "LowCostPBKDF2",
 			input:      `{"checksum":{"function":"sha256","message":"57dbef6061fe5832064da342e92cac95917ff6d928d278919e3ddb7ae89c05c7","params":{}},"cipher":{"function":"aes-128-ctr","message":"cfe1132d3f0fe4f59d38f5eef01b80be32517448fa65dd0476171324cc3ab5fc","params":{"iv":"5975ccd92bc36290f082f134ec4c52bd"}},"kdf":{"function":"pbkdf2","message":"","params":{"c":1024,"dklen":32,"prf":"hmac-sha256","salt":"700ca70794d861f8f35d733e83c67431c893aa8e83b0dc43b6abd62edf9df0d1"}}}`,
 			passphrase: "𝔱𝔢𝔰𝔱𝔭𝔞𝔰𝔰𝔴𝔬𝔯𝔡🔑",
@@ -74,7 +75,7 @@ func TestRoundTrip(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			encryptor := keystorev4.New(test.options...)
-			input := make(map[string]interface{})
+			input := make(map[string]any)
 			err := json.Unmarshal([]byte(test.input), &input)
 			require.Nil(t, err)
 			secret, err := encryptor.Decrypt(input, test.passphrase)
@@ -98,6 +99,7 @@ func TestNameAndVersion(t *testing.T) {
 	encryptor := keystorev4.New()
 	assert.Equal(t, "keystore", encryptor.Name())
 	assert.Equal(t, uint(4), encryptor.Version())
+	assert.Equal(t, "keystorev4", encryptor.String())
 }
 
 func TestGenerateKey(t *testing.T) {

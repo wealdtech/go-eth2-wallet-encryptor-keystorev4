@@ -3,6 +3,7 @@ module github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4
 go 1.20
 
 require (
+	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.2
 	github.com/wealdtech/go-eth2-wallet-types/v2 v2.10.1
 	golang.org/x/crypto v0.6.0
@@ -17,7 +18,6 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/wealdtech/go-eth2-types/v2 v2.8.1 // indirect
 	golang.org/x/sys v0.5.0 // indirect
